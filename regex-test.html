@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>正则测试 | 程序员工具箱</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0d1117; color: #c9d1d9; font-family: 'Courier New', monospace; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 2rem; }
+        header { text-align: center; margin-bottom: 2rem; }
+        header h1 { font-size: 1.8rem; color: #58a6ff; }
+        header a { color: #8b949e; font-size: 0.9rem; text-decoration: none; }
+        .container { width: 100%; max-width: 900px; display: flex; flex-direction: column; gap: 1rem; }
+        input, textarea {
+            width: 100%;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            color: #c9d1d9;
+            padding: 0.8rem 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            resize: vertical;
+        }
+        textarea { height: 180px; }
+        .btn-group { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        button {
+            background: #21262d;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        button:hover { background: #30363d; }
+        .primary { background: #238636; border-color: #2ea043; color: #fff; }
+        .output-box {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 1rem;
+            min-height: 100px;
+            white-space: pre-wrap;
+            word-break: break-all;
+            font-size: 0.9rem;
+        }
+        .match { background: #238636; color: white; padding: 0 2px; border-radius: 3px; }
+        .error { color: #f85149; min-height: 1.2rem; }
+        footer { margin-top: 2rem; color: #484f58; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🔍 正则测试</h1>
+        <a href="index.html">← 返回工具箱</a>
+    </header>
+    <div class="container">
+        <input id="regex" placeholder="输入正则表达式，如 \d{3}">
+        <textarea id="text" placeholder="输入要匹配的文本..."></textarea>
+        <div class="btn-group">
+            <button class="primary" onclick="testRegex()">测试匹配</button>
+            <button onclick="clearAll()">清空</button>
+        </div>
+        <div class="error" id="error"></div>
+        <div class="output-box" id="output">匹配结果会显示在这里...</div>
+    </div>
+    <footer>
+        &copy; 2026 As123456-prog | 开源在 GitHub
+    </footer>
+    <script>
+        function testRegex() {
+            const error = document.getElementById('error');
+            const output = document.getElementById('output');
+            error.textContent = '';
+            output.innerHTML = '';
+            const pattern = document.getElementById('regex').value;
+            const text = document.getElementById('text').value;
+            if (!pattern) { error.textContent = '请输入正则表达式'; return; }
+            try {
+                const regex = new RegExp(pattern, 'g');
+                const matches = text.match(regex);
+                if (matches) {
+                    const highlighted = text.replace(regex, match => `<span class="match">${match}</span>`);
+                    output.innerHTML = highlighted + '<br><br>共匹配到 ' + matches.length + ' 处';
+                } else {
+                    output.textContent = '没有匹配结果';
+                }
+            } catch (e) {
+                error.textContent = '❌ 正则表达式错误: ' + e.message;
+            }
+        }
+        function clearAll() {
+            document.getElementById('regex').value = '';
+            document.getElementById('text').value = '';
+            document.getElementById('output').innerHTML = '匹配结果会显示在这里...';
+            document.getElementById('error').textContent = '';
+        }
+    </script>
+</body>
+</html>

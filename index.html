@@ -6,37 +6,12 @@
     <title>程序员工具箱 | Rust Powered</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: #0d1117;
-            color: #c9d1d9;
-            font-family: 'Courier New', monospace;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 2rem;
-        }
+        body { background: #0d1117; color: #c9d1d9; font-family: 'Courier New', monospace; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 2rem; }
         header { text-align: center; margin-bottom: 3rem; }
         header h1 { font-size: 2.5rem; color: #58a6ff; margin-bottom: 0.5rem; }
         header p { color: #8b949e; font-size: 1rem; }
-        .tool-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            width: 100%;
-            max-width: 1000px;
-        }
-        .tool-card {
-            background: #161b22;
-            border: 1px solid #30363d;
-            border-radius: 8px;
-            padding: 1.5rem;
-            transition: transform 0.2s, border-color 0.2s;
-            cursor: pointer;
-            text-decoration: none;
-            color: inherit;
-            display: block;
-        }
+        .tool-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; width: 100%; max-width: 1000px; }
+        .tool-card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 1.5rem; transition: transform 0.2s, border-color 0.2s; cursor: pointer; text-decoration: none; color: inherit; display: block; }
         .tool-card:hover { transform: translateY(-4px); border-color: #58a6ff; }
         .tool-card h2 { font-size: 1.2rem; color: #f0f6fc; margin-bottom: 0.5rem; }
         .tool-card p { color: #8b949e; font-size: 0.9rem; }
@@ -65,11 +40,11 @@
             <h2>🔗 URL 编解码</h2>
             <p>URL 编码与解码</p>
         </a>
-        <a class="tool-card" href="#">
+        <a class="tool-card" href="regex-test.html">
             <h2>🔍 正则测试</h2>
             <p>在线测试正则表达式，高亮匹配</p>
         </a>
-        <a class="tool-card" href="#">
+        <a class="tool-card" href="hash.html">
             <h2>🔒 哈希计算</h2>
             <p>MD5, SHA-1, SHA-256 一键计算</p>
         </a>
