@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="log-tracker.js"></script>
+    <title>访问记录 | 程序员工具箱</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0d1117; color: #c9d1d9; font-family: 'Courier New', monospace; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 2rem; }
+        header { text-align: center; margin-bottom: 2rem; }
+        header h1 { font-size: 1.8rem; color: #58a6ff; }
+        header a { color: #8b949e; font-size: 0.9rem; text-decoration: none; }
+        .container { width: 100%; max-width: 900px; }
+        .log-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .log-table th, .log-table td {
+            padding: 0.6rem 1rem;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+        .log-table th { background: #21262d; color: #58a6ff; }
+        .log-table td { border-top: 1px solid #30363d; }
+        .empty { text-align: center; padding: 2rem; color: #8b949e; }
+        .btn-group { margin-bottom: 1rem; }
+        button {
+            background: #21262d;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 0.4rem 0.8rem;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        button:hover { background: #30363d; }
+        .primary { background: #238636; border-color: #2ea043; color: #fff; }
+        footer { margin-top: 2rem; color: #484f58; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>📋 访问记录</h1>
+        <a href="index.html">← 返回工具箱</a>
+    </header>
+    <div class="container">
+        <div class="btn-group">
+            <button class="primary" onclick="refreshLog()">刷新</button>
+            <button onclick="clearLog()">清空记录</button>
+        </div>
+        <table class="log-table" id="logTable">
+            <thead>
+                <tr>
+                    <th>用户</th>
+                    <th>访问页面</th>
+                    <th>时间</th>
+                </tr>
+            </thead>
+            <tbody id="logBody">
+                <tr><td colspan="3" class="empty">暂无记录（请先登录并访问工具页面）</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <footer>
+        &copy; 2026 As123456-prog | 开源在 GitHub
+    </footer>
+    <script>
+        function refreshLog() {
+            const logs = JSON.parse(localStorage.getItem('toolbox_logs') || '[]');
+            const tbody = document.getElementById('logBody');
+            if (logs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="empty">暂无记录</td></tr>';
+                return;
+            }
+            // 按时间倒序显示最近 50 条
+            const recent = logs.slice(-50).reverse();
+            tbody.innerHTML = recent.map(log => `
+                <tr>
+                    <td>${log.user}</td>
+                    <td>${log.page}</td>
+                    <td>${log.time}</td>
+                </tr>
+            `).join('');
+        }
+        function clearLog() {
+            if (confirm('确认清空所有访问记录？')) {
+                localStorage.removeItem('toolbox_logs');
+                refreshLog();
+            }
+        }
+        // 页面加载时自动显示
+        refreshLog();
+    </script>
+</body>
+</html>

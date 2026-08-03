@@ -7,10 +7,38 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #0d1117; color: #c9d1d9; font-family: 'Courier New', monospace; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 2rem; }
-        header { text-align: center; margin-bottom: 3rem; }
+        header { text-align: center; margin-bottom: 2rem; }
         header h1 { font-size: 2.5rem; color: #58a6ff; margin-bottom: 0.5rem; }
         header p { color: #8b949e; font-size: 1rem; }
-        .tool-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; width: 100%; max-width: 1000px; }
+        .login-area {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            align-items: center;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+        .login-area input {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #c9d1d9;
+            padding: 0.4rem 0.8rem;
+            font-family: inherit;
+            width: 160px;
+        }
+        .login-area button {
+            background: #238636;
+            border: 1px solid #2ea043;
+            color: white;
+            border-radius: 6px;
+            padding: 0.4rem 0.8rem;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .login-area .logout-btn { background: #da3633; border-color: #f85149; }
+        .user-info { color: #58a6ff; font-size: 0.9rem; }
+        .tool-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; width: 100%; max-width: 1100px; }
         .tool-card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 1.5rem; transition: transform 0.2s, border-color 0.2s; cursor: pointer; text-decoration: none; color: inherit; display: block; }
         .tool-card:hover { transform: translateY(-4px); border-color: #58a6ff; }
         .tool-card h2 { font-size: 1.2rem; color: #f0f6fc; margin-bottom: 0.5rem; }
@@ -23,6 +51,15 @@
         <h1>🦀 程序员工具箱</h1>
         <p>免费 · 开源 · 永不收费 | Powered by Rust & GitHub Pages</p>
     </header>
+
+    <!-- 简易登录/昵称设置 -->
+    <div class="login-area">
+        <input type="text" id="nicknameInput" placeholder="输入昵称（无需密码）">
+        <button id="loginBtn" onclick="login()">登录 / 设置</button>
+        <button id="logoutBtn" class="logout-btn" onclick="logout()" style="display:none;">退出</button>
+        <span id="userDisplay" class="user-info"></span>
+    </div>
+
     <div class="tool-grid">
         <a class="tool-card" href="json-formatter.html">
             <h2>📋 JSON 格式化</h2>
@@ -48,9 +85,61 @@
             <h2>🔒 哈希计算</h2>
             <p>MD5, SHA-1, SHA-256 一键计算</p>
         </a>
+        <a class="tool-card" href="ip-lookup.html">
+            <h2>🌍 IP 查询</h2>
+            <p>查询 IP 归属地、运营商等信息</p>
+        </a>
+        <a class="tool-card" href="access-log.html">
+            <h2>📋 访问记录</h2>
+            <p>查看工具箱使用日志</p>
+        </a>
     </div>
+
     <footer>
         &copy; 2026 As123456-prog | 开源在 GitHub
     </footer>
+
+    <script>
+        // 登录逻辑
+        function login() {
+            const name = document.getElementById('nicknameInput').value.trim();
+            if (!name) return alert('请输入昵称');
+            localStorage.setItem('toolbox_user', name);
+            updateUI();
+        }
+        function logout() {
+            localStorage.removeItem('toolbox_user');
+            document.getElementById('nicknameInput').value = '';
+            updateUI();
+        }
+        function updateUI() {
+            const user = localStorage.getItem('toolbox_user');
+            if (user) {
+                document.getElementById('userDisplay').textContent = '当前用户: ' + user;
+                document.getElementById('loginBtn').style.display = 'none';
+                document.getElementById('logoutBtn').style.display = 'inline-block';
+                document.getElementById('nicknameInput').style.display = 'none';
+            } else {
+                document.getElementById('userDisplay').textContent = '';
+                document.getElementById('loginBtn').style.display = 'inline-block';
+                document.getElementById('logoutBtn').style.display = 'none';
+                document.getElementById('nicknameInput').style.display = 'inline-block';
+            }
+        }
+        updateUI();
+        // 记录首页访问（如果已登录）
+        if (localStorage.getItem('toolbox_user')) {
+            const logs = JSON.parse(localStorage.getItem('toolbox_logs') || '[]');
+            logs.push({
+                user: localStorage.getItem('toolbox_user'),
+                page: 'index.html',
+                time: new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }),
+                timestamp: Date.now()
+            });
+            if (logs.length > 500) logs.splice(0, logs.length - 500);
+            localStorage.setItem('toolbox_logs', JSON.stringify(logs));
+        }
+    </script>
+    <script src="log-tracker.js"></script>
 </body>
 </html>
