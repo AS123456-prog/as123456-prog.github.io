@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 进化实验室 | 程序员工具箱</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0d1117; color: #c9d1d9; font-family: 'Courier New', monospace; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 2rem; }
+        header { text-align: center; margin-bottom: 2rem; }
+        header h1 { font-size: 1.8rem; color: #58a6ff; }
+        header a { color: #8b949e; font-size: 0.9rem; text-decoration: none; }
+        .container { width: 100%; max-width: 900px; display: flex; flex-direction: column; gap: 1.5rem; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+        .stat-card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 1rem; text-align: center; }
+        .stat-card .number { font-size: 2rem; color: #58a6ff; }
+        .stat-card .label { color: #8b949e; font-size: 0.85rem; }
+        .timeline { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 1rem; }
+        .timeline h2 { font-size: 1.2rem; margin-bottom: 1rem; color: #f0f6fc; }
+        .commit-item { border-bottom: 1px solid #30363d; padding: 0.8rem 0; display: flex; flex-direction: column; gap: 0.3rem; }
+        .commit-item:last-child { border-bottom: none; }
+        .commit-message { color: #f0f6fc; font-weight: bold; }
+        .commit-meta { color: #8b949e; font-size: 0.85rem; }
+        .commit-diff { background: #0d1117; border: 1px solid #30363d; border-radius: 4px; padding: 0.5rem; margin-top: 0.5rem; display: none; white-space: pre-wrap; font-size: 0.8rem; max-height: 300px; overflow-y: auto; }
+        .diff-toggle { color: #58a6ff; cursor: pointer; font-size: 0.85rem; }
+        .loading { color: #8b949e; text-align: center; padding: 2rem; }
+        .error { color: #f85149; text-align: center; padding: 2rem; }
+        .btn-group { display: flex; gap: 0.5rem; }
+        button { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; border-radius: 6px; padding: 0.4rem 0.8rem; cursor: pointer; font-family: inherit; }
+        button:hover { background: #30363d; }
+        .primary { background: #238636; border-color: #2ea043; color: #fff; }
+        footer { margin-top: 2rem; color: #484f58; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🧬 AI 进化实验室</h1>
+        <a href="index.html">← 返回工具箱</a>
+    </header>
+
+    <div class="container">
+        <div class="stats">
+            <div class="stat-card">
+                <div class="number" id="totalEvolves">-</div>
+                <div class="label">总进化次数</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="lastEvolve">-</div>
+                <div class="label">最近进化</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="status">🟡</div>
+                <div class="label">当前状态</div>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="primary" onclick="loadData()">刷新数据</button>
+        </div>
+
+        <div class="timeline">
+            <h2>进化时间线</h2>
+            <div id="timelineContent"><div class="loading">加载中...</div></div>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2026 As123456-prog | 开源在 GitHub
+    </footer>
+
+    <script>
+        const OWNER = 'As123456-prog';
+        const REPO = 'as123456-prog.github.io';
+        const COMMITS_URL = `https://api.github.com/repos/${OWNER}/${REPO}/commits`;
+        const DIFF_URL_BASE = `https://api.github.com/repos/${OWNER}/${REPO}/commits`;
+
+        async function loadData() {
+            const timelineDiv = document.getElementById('timelineContent');
+            timelineDiv.innerHTML = '<div class="loading">加载中...</div>';
+            try {
+                // 获取最近 20 条提交
+                const res = await fetch(`${COMMITS_URL}?per_page=20`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const commits = await res.json();
+
+                // 筛选包含 "AI auto-evolve" 或 "Auto-evolve" 的提交
+                const evolveCommits = commits.filter(c => {
+                    const msg = c.commit.message.toLowerCase();
+                    return msg.includes('ai auto-evolve') || msg.includes('auto-evolve');
+                });
+
+                // 更新概览统计
+                document.getElementById('totalEvolves').textContent = evolveCommits.length;
+                if (evolveCommits.length > 0) {
+                    const lastDate = new Date(evolveCommits[0].commit.author.date);
+                    const now = new Date();
+                    const diffMs = now - lastDate;
+                    const hoursAgo = Math.floor(diffMs / (1000 * 60 * 60));
+                    document.getElementById('lastEvolve').textContent = hoursAgo === 0 ? '刚刚' : `${hoursAgo}小时前`;
+                    document.getElementById('status').textContent = '🟢 活跃';
+                } else {
+                    document.getElementById('lastEvolve').textContent = '暂无';
+                    document.getElementById('status').textContent = '⚪ 等待首次进化';
+                }
+
+                // 渲染时间线
+                if (evolveCommits.length === 0) {
+                    timelineDiv.innerHTML = '<div class="error">还没有 AI 进化记录。请确保进化实验正在运行。</div>';
+                } else {
+                    let html = '';
+                    evolveCommits.forEach((commit, index) => {
+                        const sha = commit.sha;
+                        const message = commit.commit.message;
+                        const date = new Date(commit.commit.author.date).toLocaleString('zh-CN');
+                        html += `
+                            <div class="commit-item">
+                                <div class="commit-message">${escapeHtml(message)}</div>
+                                <div class="commit-meta">${date} · ${sha.substring(0, 7)}</div>
+                                <span class="diff-toggle" onclick="toggleDiff('${sha}', this)">查看改动详情</span>
+                                <div class="commit-diff" id="diff-${sha}"></div>
+                            </div>`;
+                    });
+                    timelineDiv.innerHTML = html;
+                }
+            } catch (err) {
+                console.error(err);
+                timelineDiv.innerHTML = `<div class="error">加载失败: ${err.message}<br>可能是 API 请求次数超限，请稍后重试。</div>`;
+            }
+        }
+
+        async function toggleDiff(sha, toggleElem) {
+            const diffDiv = document.getElementById(`diff-${sha}`);
+            if (diffDiv.style.display === 'block') {
+                diffDiv.style.display = 'none';
+                return;
+            }
+            if (diffDiv.textContent === '') {
+                diffDiv.textContent = '加载中...';
+                try {
+                    const res = await fetch(`${DIFF_URL_BASE}/${sha}`);
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    const data = await res.json();
+                    // 获取文件差异摘要
+                    const files = data.files || [];
+                    let diffText = '';
+                    files.forEach(file => {
+                        diffText += `文件: ${file.filename}\n添加: +${file.additions} 行  删除: -${file.deletions} 行\n`;
+                        if (file.patch) {
+                            diffText += file.patch.substring(0, 500) + (file.patch.length > 500 ? '\n... (截断)' : '');
+                        }
+                        diffText += '\n\n';
+                    });
+                    diffDiv.textContent = diffText || '无改动详情';
+                } catch (err) {
+                    diffDiv.textContent = `加载差异失败: ${err.message}`;
+                }
+            }
+            diffDiv.style.display = 'block';
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 页面加载时自动获取数据
+        loadData();
+    </script>
+</body>
+</html>
