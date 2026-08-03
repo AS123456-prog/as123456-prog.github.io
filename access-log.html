@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="log-tracker.js"></script>
     <title>访问记录 | 程序员工具箱</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -28,7 +27,7 @@
         .log-table th { background: #21262d; color: #58a6ff; }
         .log-table td { border-top: 1px solid #30363d; }
         .empty { text-align: center; padding: 2rem; color: #8b949e; }
-        .btn-group { margin-bottom: 1rem; }
+        .btn-group { margin-bottom: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
         button {
             background: #21262d;
             color: #c9d1d9;
@@ -41,6 +40,36 @@
         button:hover { background: #30363d; }
         .primary { background: #238636; border-color: #2ea043; color: #fff; }
         footer { margin-top: 2rem; color: #484f58; font-size: 0.8rem; }
+        /* 密码验证层 */
+        .lock-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(13,17,23,0.97);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        .lock-box {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+        }
+        .lock-box input {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #c9d1d9;
+            padding: 0.5rem;
+            font-family: inherit;
+            margin: 0.5rem 0;
+            width: 200px;
+        }
+        .lock-box p { color: #8b949e; margin-bottom: 1rem; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
@@ -48,12 +77,26 @@
         <h1>📋 访问记录</h1>
         <a href="index.html">← 返回工具箱</a>
     </header>
-    <div class="container">
+
+    <!-- 密码验证界面 -->
+    <div id="lockScreen" class="lock-overlay">
+        <div class="lock-box">
+            <p>🔒 此页面受密码保护</p>
+            <input type="password" id="pwdInput" placeholder="请输入密码">
+            <br>
+            <button class="primary" onclick="checkPassword()">验证</button>
+            <p id="lockError" style="color:#f85149; min-height:1.2rem;"></p>
+        </div>
+    </div>
+
+    <!-- 实际内容（初始隐藏） -->
+    <div id="mainContent" class="container hidden">
         <div class="btn-group">
             <button class="primary" onclick="refreshLog()">刷新</button>
             <button onclick="clearLog()">清空记录</button>
+            <button onclick="lockAgain()">重新锁定</button>
         </div>
-        <table class="log-table" id="logTable">
+        <table class="log-table">
             <thead>
                 <tr>
                     <th>用户</th>
@@ -62,14 +105,46 @@
                 </tr>
             </thead>
             <tbody id="logBody">
-                <tr><td colspan="3" class="empty">暂无记录（请先登录并访问工具页面）</td></tr>
+                <tr><td colspan="3" class="empty">暂无记录</td></tr>
             </tbody>
         </table>
     </div>
+
     <footer>
         &copy; 2026 As123456-prog | 开源在 GitHub
     </footer>
+
     <script>
+        // ====== 密码设置 ======
+        // 请在此修改为你自己的密码（默认密码：123456）
+        const CORRECT_PASSWORD = '123456';
+
+        // ====== 验证逻辑 ======
+        function checkPassword() {
+            const input = document.getElementById('pwdInput').value;
+            const error = document.getElementById('lockError');
+            if (input === CORRECT_PASSWORD) {
+                document.getElementById('lockScreen').classList.add('hidden');
+                document.getElementById('mainContent').classList.remove('hidden');
+                refreshLog();
+            } else {
+                error.textContent = '密码错误';
+            }
+        }
+
+        function lockAgain() {
+            document.getElementById('mainContent').classList.add('hidden');
+            document.getElementById('lockScreen').classList.remove('hidden');
+            document.getElementById('pwdInput').value = '';
+            document.getElementById('lockError').textContent = '';
+        }
+
+        // 回车键触发验证
+        document.getElementById('pwdInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') checkPassword();
+        });
+
+        // ====== 日志功能 ======
         function refreshLog() {
             const logs = JSON.parse(localStorage.getItem('toolbox_logs') || '[]');
             const tbody = document.getElementById('logBody');
@@ -77,7 +152,6 @@
                 tbody.innerHTML = '<tr><td colspan="3" class="empty">暂无记录</td></tr>';
                 return;
             }
-            // 按时间倒序显示最近 50 条
             const recent = logs.slice(-50).reverse();
             tbody.innerHTML = recent.map(log => `
                 <tr>
@@ -87,14 +161,32 @@
                 </tr>
             `).join('');
         }
+
         function clearLog() {
             if (confirm('确认清空所有访问记录？')) {
                 localStorage.removeItem('toolbox_logs');
                 refreshLog();
             }
         }
-        // 页面加载时自动显示
-        refreshLog();
+
+        // 页面加载时检查会话（同一浏览器内已验证过就不重复显示锁屏）
+        if (sessionStorage.getItem('access_granted') === 'true') {
+            document.getElementById('lockScreen').classList.add('hidden');
+            document.getElementById('mainContent').classList.remove('hidden');
+            refreshLog();
+        } else {
+            // 自动聚焦到密码框
+            setTimeout(() => document.getElementById('pwdInput').focus(), 100);
+        }
+
+        // 验证成功后设置会话标记
+        const origCheck = checkPassword;
+        checkPassword = function() {
+            origCheck();
+            if (document.getElementById('mainContent').classList.contains('hidden') === false) {
+                sessionStorage.setItem('access_granted', 'true');
+            }
+        };
     </script>
 </body>
 </html>
