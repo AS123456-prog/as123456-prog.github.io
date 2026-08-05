@@ -1,0 +1,43 @@
+name: AI Evolve Website
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 每天 UTC 0 点，北京时间 8 点
+  workflow_dispatch:       # 允许手动触发
+
+jobs:
+  evolve:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write      # 允许推送提交
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Mutate index.html
+        run: |
+          python3 -c "
+          import random, re
+          with open('index.html', 'r') as f:
+              html = f.read()
+          # 随机换背景色
+          colors = ['#0d1117', '#1e2128', '#52648d', '#ff69b4', '#0a0e14', '#161b22']
+          html = re.sub(r'background: #[0-9a-fA-F]{6}', f'background: {random.choice(colors)}', html)
+          # 随机换标题颜色
+          title_colors = ['#58a6ff', '#a6e9bc', '#ff8c6f', '#d2a8ff', '#3fb950']
+          html = re.sub(r'color: #[0-9a-fA-F]{6}; \*/', f'color: {random.choice(title_colors)}; */', html)
+          with open('index.html', 'w') as f:
+              f.write(html)
+          "
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "actions@github.com"
+          git add index.html
+          if git diff --cached --quiet; then
+            echo "No changes"
+          else
+            git commit -m "🤖 AI auto-evolve (random)"
+            git push
+          fi
