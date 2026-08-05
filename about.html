@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>关于我 | As123456-prog</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0d1117; color: #c9d1d9; font-family: 'Courier New', monospace; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 2rem; }
+        header { text-align: center; margin-bottom: 2rem; }
+        header h1 { font-size: 2.5rem; color: #58a6ff; margin-bottom: 0.5rem; }
+        header a { color: #8b949e; font-size: 0.9rem; text-decoration: none; }
+        .container { width: 100%; max-width: 700px; display: flex; flex-direction: column; gap: 1.5rem; }
+        .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 1.5rem; }
+        .card h2 { color: #58a6ff; margin-bottom: 0.8rem; font-size: 1.2rem; }
+        .card p { color: #8b949e; line-height: 1.6; margin-bottom: 0.5rem; }
+        .card a { color: #58a6ff; text-decoration: none; }
+        .tag { display: inline-block; background: #21262d; border: 1px solid #30363d; border-radius: 4px; padding: 0.2rem 0.5rem; margin: 0.2rem; font-size: 0.8rem; color: #c9d1d9; }
+        .blog-entry { border-bottom: 1px solid #30363d; padding: 0.8rem 0; }
+        .blog-entry:last-child { border-bottom: none; }
+        .blog-entry h3 { color: #f0f6fc; margin-bottom: 0.3rem; font-size: 1rem; }
+        .blog-entry .date { color: #484f58; font-size: 0.8rem; }
+        footer { margin-top: 3rem; color: #484f58; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>👨‍💻 As123456-prog</h1>
+        <a href="index.html">← 返回工具箱</a>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h2>📝 关于我</h2>
+            <p>极客玩家 · 终端控 · Rust 爱好者</p>
+            <p>专注移动开发工作站、AI 进化实验、开源工具链。</p>
+            <p>GitHub: <a href="https://github.com/AS123456-prog">AS123456-prog</a></p>
+        </div>
+
+        <div class="card">
+            <h2>🛠️ 技术栈</h2>
+            <p>
+                <span class="tag">Rust</span>
+                <span class="tag">Termux</span>
+                <span class="tag">Neovim</span>
+                <span class="tag">Git</span>
+                <span class="tag">Linux</span>
+                <span class="tag">Actix-web</span>
+                <span class="tag">Ollama</span>
+                <span class="tag">GitHub Actions</span>
+                <span class="tag">Shell 脚本</span>
+            </p>
+        </div>
+
+        <div class="card">
+            <h2>📂 项目</h2>
+            <p>🔧 <a href="index.html">程序员工具箱</a> — 8 款在线开发工具</p>
+            <p>🧬 <a href="ai-lab.html">AI 进化实验室</a> — AI 自主改造网站的长期实验</p>
+        </div>
+
+        <div class="card">
+            <h2>📰 最新文章</h2>
+            <div class="blog-entry">
+                <h3>如何用 Termux 搭建移动开发工作站</h3>
+                <div class="date">2026-08-06</div>
+            </div>
+            <div class="blog-entry">
+                <h3>AI 进化实验：让 AI 自己写代码改造网站</h3>
+                <div class="date">2026-08-04</div>
+            </div>
+            <div class="blog-entry">
+                <h3>Termux 终极瘦身：从 450+ 到 300 个包</h3>
+                <div class="date">2026-08-03</div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2026 As123456-prog | 开源在 GitHub
+    </footer>
+</body>
+</html>
