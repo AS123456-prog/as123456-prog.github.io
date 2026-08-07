@@ -1,43 +1,113 @@
-name: AI Evolve Website
+name: AI自主进化工具箱
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # 每天 UTC 0 点，北京时间 8 点
-  workflow_dispatch:       # 允许手动触发
+    - cron: '0 0 * * *'  # 每天一次
+  workflow_dispatch:
 
 jobs:
   evolve:
     runs-on: ubuntu-latest
     permissions:
-      contents: write      # 允许推送提交
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Mutate index.html
+      - name: AI自主改进工具
         run: |
           python3 -c "
-          import random, re
+          import random, re, os, glob
+
+          # 读取首页，看看有哪些工具
           with open('index.html', 'r') as f:
               html = f.read()
-          # 随机换背景色
-          colors = ['#0d1117', '#1e2128', '#52648d', '#ff69b4', '#0a0e14', '#161b22']
-          html = re.sub(r'background: #[0-9a-fA-F]{6}', f'background: {random.choice(colors)}', html)
-          # 随机换标题颜色
-          title_colors = ['#58a6ff', '#a6e9bc', '#ff8c6f', '#d2a8ff', '#3fb950']
-          html = re.sub(r'color: #[0-9a-fA-F]{6}; \*/', f'color: {random.choice(title_colors)}; */', html)
-          with open('index.html', 'w') as f:
-              f.write(html)
+
+          # 提取所有工具页面的链接
+          tools = re.findall(r'href=\"([^\"]+\.html)\"', html)
+          tools = [t for t in tools if t != 'index.html' and t != 'ai-lab.html' and t != 'about.html']
+
+          if tools:
+              # 随机选一个工具进行改进
+              target = random.choice(tools)
+              print(f'🎯 AI决定改进: {target}')
+
+              if os.path.exists(target):
+                  with open(target, 'r') as f:
+                      content = f.read()
+
+                  # AI可以选择的改进方式
+                  improvements = []
+
+                  # 1. 添加一键复制按钮
+                  if 'copyToClipboard' not in content:
+                      improvements.append('copy_button')
+
+                  # 2. 添加清空按钮（如果还没有）
+                  if 'clearAll' not in content and '清空' not in content:
+                      improvements.append('clear_button')
+
+                  # 3. 添加输入验证
+                  if 'error' not in content.lower():
+                      improvements.append('error_handling')
+
+                  # 4. 添加历史记录
+                  if 'localStorage' not in content and 'history' not in content:
+                      improvements.append('history')
+
+                  if improvements:
+                      chosen = random.choice(improvements)
+                      print(f'🔧 AI选择添加: {chosen}')
+
+                      if chosen == 'copy_button':
+                          content += '''
+              <script>
+              function copyToClipboard() {
+                  const output = document.getElementById('output');
+                  if (output) {
+                      output.select();
+                      document.execCommand('copy');
+                      alert('已复制到剪贴板');
+                  }
+              }
+              </script>'''
+
+                      elif chosen == 'clear_button':
+                          content = content.replace('</body>', '<button onclick=\"clearAll()\">清空</button>\n</body>')
+
+                      elif chosen == 'error_handling':
+                          content = content.replace('<textarea id=\"input\"', '<textarea id=\"input\" oninput=\"validateInput()\"')
+
+                      elif chosen == 'history':
+                          content += '''
+              <script>
+              const history = JSON.parse(localStorage.getItem('tool_history') || '[]');
+              function saveToHistory(input) {
+                  history.unshift({text: input, time: new Date().toISOString()});
+                  localStorage.setItem('tool_history', JSON.stringify(history.slice(0, 10)));
+              }
+              </script>'''
+
+                      with open(target, 'w') as f:
+                          f.write(content)
+
+                      print(f'✅ 已改进 {target}，添加了 {chosen}')
+                  else:
+                      print('ℹ️ 该工具已经比较完善，跳过')
+              else:
+                  print(f'⚠️ 文件 {target} 不存在，跳过')
+          else:
+              print('ℹ️ 没有找到可改进的工具页面')
           "
 
-      - name: Commit and push
+      - name: 提交并推送
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "actions@github.com"
-          git add index.html
+          git add .
           if git diff --cached --quiet; then
-            echo "No changes"
+            echo "没有改动"
           else
-            git commit -m "🤖 AI auto-evolve (random)"
+            git commit -m "🤖 AI自主进化：改进工具功能"
             git push
           fi
