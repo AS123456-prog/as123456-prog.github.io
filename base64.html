@@ -152,3 +152,10 @@
         }
     }
     </script>
+    <script>
+    const history = JSON.parse(localStorage.getItem('tool_history') || '[]');
+    function saveToHistory(input) {
+        history.unshift({text: input, time: new Date().toISOString()});
+        localStorage.setItem('tool_history', JSON.stringify(history.slice(0, 10)));
+    }
+    </script>
