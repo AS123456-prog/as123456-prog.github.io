@@ -104,3 +104,13 @@
         localStorage.setItem('tool_history', JSON.stringify(history.slice(0, 10)));
     }
     </script>
+    <script>
+    function copyToClipboard() {
+        const output = document.getElementById('output');
+        if (output) {
+            output.select();
+            document.execCommand('copy');
+            alert('已复制到剪贴板');
+        }
+    }
+    </script>
