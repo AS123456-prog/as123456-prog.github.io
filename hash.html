@@ -53,7 +53,7 @@
         <a href="index.html">← 返回工具箱</a>
     </header>
     <div class="container">
-        <textarea id="input" oninput="validateInput()" placeholder="输入要计算哈希的文本..."></textarea>
+        <textarea id="input" oninput="validateInput()" oninput="validateInput()" placeholder="输入要计算哈希的文本..."></textarea>
         <div class="btn-group">
             <button class="primary" onclick="calcHash('SHA-256')">SHA-256</button>
             <button onclick="calcHash('SHA-1')">SHA-1</button>
